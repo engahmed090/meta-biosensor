@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import plotly.graph_objects as go
 import random
 import time
 import base64
@@ -20,7 +20,6 @@ b64_bg = base64.b64encode(svg_bg.encode('utf-8')).decode('utf-8')
 
 st.markdown(f"""
 <style>
-    /* Global Background */
     .stApp {{
         background-color: #0a0f1a;
         background-image: url("data:image/svg+xml;base64,{b64_bg}");
@@ -28,8 +27,6 @@ st.markdown(f"""
         background-size: 300px;
         color: #e0f2fe;
     }}
-    
-    /* Header Styling */
     h1 {{
         color: #00ffff !important;
         text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
@@ -41,7 +38,6 @@ st.markdown(f"""
     }}
     h2, h3 {{ color: #38bdf8 !important; font-family: 'Courier New', monospace; }}
     
-    /* Sidebar */
     [data-testid="stSidebar"] {{
         background-color: #111827 !important;
         border-right: 2px solid #00ffff;
@@ -53,7 +49,6 @@ st.markdown(f"""
         border: none;
     }}
     
-    /* Buttons */
     .stButton>button {{
         background-color: #0f172a;
         color: #00ffff;
@@ -67,7 +62,6 @@ st.markdown(f"""
         box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
     }}
     
-    /* Metric Cards */
     .metric-card {{
         background: rgba(10, 15, 26, 0.8);
         border: 1px solid #00ffff;
@@ -79,51 +73,18 @@ st.markdown(f"""
         backdrop-filter: blur(5px);
     }}
     .metric-title {{
-        font-size: 16px;
-        color: #7dd3fc;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 15px;
-        font-family: 'Courier New', monospace;
+        font-size: 16px; color: #7dd3fc; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-family: 'Courier New', monospace;
     }}
     .metric-value {{
-        font-size: 34px;
-        font-weight: bold;
-        color: #00ffff;
-        text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
-        font-family: 'Courier New', monospace;
+        font-size: 34px; font-weight: bold; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255, 0.6); font-family: 'Courier New', monospace;
     }}
     
-    /* Alert Panels */
     .alert-panel {{
-        padding: 30px;
-        border-radius: 12px;
-        margin-top: 25px;
-        font-size: 20px;
-        line-height: 1.7;
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        letter-spacing: 0.5px;
+        padding: 30px; border-radius: 12px; margin-top: 25px; font-size: 20px; line-height: 1.7; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 0.5px;
     }}
-    .alert-healthy {{
-        background: rgba(21, 128, 61, 0.15);
-        border: 2px solid #22c55e;
-        color: #4ade80;
-        box-shadow: 0 0 25px rgba(34, 197, 94, 0.25);
-    }}
-    .alert-chronic {{
-        background: rgba(180, 83, 9, 0.15);
-        border: 2px solid #f59e0b;
-        color: #fbbf24;
-        box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
-    }}
-    .alert-critical {{
-        background: rgba(153, 27, 27, 0.15);
-        border: 2px solid #ef4444;
-        color: #fca5a5;
-        box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
-        animation: pulse 1.5s infinite;
-    }}
+    .alert-healthy {{ background: rgba(21, 128, 61, 0.15); border: 2px solid #22c55e; color: #4ade80; box-shadow: 0 0 25px rgba(34, 197, 94, 0.25); }}
+    .alert-chronic {{ background: rgba(180, 83, 9, 0.15); border: 2px solid #f59e0b; color: #fbbf24; box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }}
+    .alert-critical {{ background: rgba(153, 27, 27, 0.15); border: 2px solid #ef4444; color: #fca5a5; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); animation: pulse 1.5s infinite; }}
     
     @keyframes pulse {{
         0% {{ box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }}
@@ -145,52 +106,143 @@ PROFILES = {
     "Blood Cancer (Leukemia)": {"f_res": 8.2, "depth": -28.0, "color": "#FF0000", "severity": "CRITICAL"}
 }
 
-# --- Drawing Helpers ---
-def draw_rect_3d(ax, xc, yc, zc, w, d, h, color, edge_color, alpha=1.0):
+# --- Plotly 3D Drawing Helpers ---
+def get_box_mesh(xc, yc, zc, w, d, h, color, lighting=None):
     x0, x1 = xc - w/2, xc + w/2
     y0, y1 = yc - d/2, yc + d/2
     z0, z1 = zc, zc + h
-    faces = [
-        [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]], 
-        [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], 
-        [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], 
-        [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], 
-        [[x1, y1, z0], [x0, y1, z0], [x0, y1, z1], [x1, y1, z1]], 
-        [[x0, y1, z0], [x0, y0, z0], [x0, y0, z1], [x0, y1, z1]]  
-    ]
-    poly3d = Poly3DCollection(faces, facecolors=color, linewidths=1.2, edgecolors=edge_color, alpha=alpha, shade=True)
-    ax.add_collection3d(poly3d)
+    x = [x0, x1, x1, x0, x0, x1, x1, x0]
+    y = [y0, y0, y1, y1, y0, y0, y1, y1]
+    z = [z0, z0, z0, z0, z1, z1, z1, z1]
+    i = [0, 0, 4, 4, 0, 0, 2, 2, 1, 1, 0, 0]
+    j = [1, 2, 5, 6, 1, 5, 3, 7, 2, 6, 3, 7]
+    k = [2, 3, 6, 7, 5, 4, 7, 6, 6, 5, 7, 4]
+    
+    return go.Mesh3d(
+        x=x, y=y, z=z,
+        i=i, j=j, k=k,
+        color=color,
+        flatshading=True,
+        lighting=lighting if lighting else dict(ambient=0.4, diffuse=0.8, specular=0.2, roughness=0.5)
+    )
 
-def draw_cylinder(ax, x_start, y_center, z_center, radius, length, color, orientation='x'):
-    z = np.linspace(0, length, 15)
-    theta = np.linspace(0, 2*np.pi, 20)
-    theta_grid, z_grid = np.meshgrid(theta, z)
-    x_c = radius * np.cos(theta_grid)
-    y_c = radius * np.sin(theta_grid)
-    if orientation == 'x':
-        X = z_grid + x_start
-        Y = x_c + y_center
-        Z = y_c + z_center
-    ax.plot_surface(X, Y, Z, color=color, alpha=1.0, shade=True)
+def get_cylinder_mesh(x_start, y_center, z_center, radius, length, color, lighting=None):
+    n = 20
+    theta = np.linspace(0, 2*np.pi, n)
+    y_circ = radius * np.cos(theta)
+    z_circ = radius * np.sin(theta)
+    
+    x = [x_start]*n + [x_start + length]*n
+    y = list(y_center + y_circ) + list(y_center + y_circ)
+    z = list(z_center + z_circ) + list(z_center + z_circ)
+    
+    return go.Mesh3d(
+        x=x, y=y, z=z,
+        alphahull=0,
+        color=color,
+        flatshading=False,
+        lighting=lighting
+    )
 
-def draw_hemisphere(ax, xc, yc, zc, radius, color):
-    u = np.linspace(0, 2 * np.pi, 30)
-    v = np.linspace(0, np.pi / 2, 20) 
-    X = xc + radius * np.outer(np.cos(u), np.sin(v))
-    Y = yc + radius * np.outer(np.sin(u), np.sin(v))
-    Z = zc + radius * np.outer(np.ones(np.size(u)), np.cos(v))
-    ax.plot_surface(X, Y, Z, color=color, alpha=0.9, shade=True, antialiased=True)
-
-def draw_realistic_horn(ax, xc, yc, z_top, z_flare, z_bottom):
+def get_horn_mesh(xc, yc, z_top, z_flare, z_bot, color, lighting=None):
     w_guide = 1.2
-    draw_rect_3d(ax, xc, yc, z_flare, w_guide, w_guide, z_top-z_flare, color='#b5a642', edge_color='#8B6508')
+    guide_mesh = get_box_mesh(xc, yc, z_flare, w_guide, w_guide, z_top-z_flare, color, lighting)
+    
     w_top = w_guide / 2
-    w_bot = 5.5 / 2
-    t1, t2, t3, t4 = [xc-w_top, yc-w_top, z_flare], [xc+w_top, yc-w_top, z_flare], [xc+w_top, yc+w_top, z_flare], [xc-w_top, yc+w_top, z_flare]
-    b1, b2, b3, b4 = [xc-w_bot, yc-w_bot, z_bottom], [xc+w_bot, yc-w_bot, z_bottom], [xc+w_bot, yc+w_bot, z_bottom], [xc-w_bot, yc+w_bot, z_bottom]
-    faces = [[t1, t2, b2, b1], [t2, t3, b3, b2], [t3, t4, b4, b3], [t4, t1, b1, b4]]
-    poly3d = Poly3DCollection(faces, facecolors='#FFD700', edgecolors='#B8860B', linewidths=1.5, shade=True)
-    ax.add_collection3d(poly3d)
+    w_b = 5.5 / 2
+    x = [xc-w_top, xc+w_top, xc+w_top, xc-w_top,  
+         xc-w_b, xc+w_b, xc+w_b, xc-w_b]          
+    y = [yc-w_top, yc-w_top, yc+w_top, yc+w_top,  
+         yc-w_b, yc-w_b, yc+w_b, yc+w_b]
+    z = [z_flare, z_flare, z_flare, z_flare,
+         z_bot, z_bot, z_bot, z_bot]
+         
+    i = [0, 0, 2, 2, 1, 1, 0, 0]
+    j = [1, 5, 3, 7, 2, 6, 3, 7]
+    k = [5, 4, 7, 6, 6, 5, 7, 4]
+    
+    flare_mesh = go.Mesh3d(
+        x=x, y=y, z=z,
+        i=i, j=j, k=k,
+        color=color,
+        flatshading=True,
+        lighting=lighting
+    )
+    return [guide_mesh, flare_mesh]
+
+@st.cache_data(show_spinner=False)
+def get_3d_plotly_fig(show_droplet=False):
+    traces = []
+    
+    # 1. VNA Machine (Main Body & Screen)
+    vna_body = get_box_mesh(-9, 0, 0, 5, 8, 12, '#2b2b2b', lighting=dict(ambient=0.5, diffuse=0.7, specular=0.3, roughness=0.4))
+    traces.append(vna_body)
+    
+    vna_screen = get_box_mesh(-6.45, -1, 5, 0.15, 5, 5, '#00FFFF', lighting=dict(ambient=0.9, diffuse=0.8, specular=0.1, roughness=0.9))
+    traces.append(vna_screen)
+    
+    # VNA Port Cylinder
+    port = get_cylinder_mesh(-6.5, 2.0, 8.0, 0.4, 0.8, 'silver', lighting=dict(ambient=0.6, diffuse=0.8, specular=0.8, roughness=0.2))
+    traces.append(port)
+    
+    # 2. Pyramidal Horn Antenna
+    horn_meshes = get_horn_mesh(0, 0, 14, 11, 5, '#b5a642', lighting=dict(ambient=0.3, diffuse=0.6, specular=2.0, roughness=0.2))
+    traces.extend(horn_meshes)
+    
+    # 3. Coaxial Cable
+    t = np.linspace(0, 1, 60)
+    cx = -5.7 + 5.1*t
+    cy = 2.0 * (1 - t)
+    cz = 8.0 * (1 - t) + 12.5 * t - 4.5*np.sin(np.pi*t) 
+    
+    cable = go.Scatter3d(
+        x=cx, y=cy, z=cz,
+        mode='lines',
+        line=dict(color='#111111', width=8),
+        hoverinfo='skip'
+    )
+    traces.append(cable)
+    
+    # 4. Metamaterial Absorber Sensor 
+    fr4 = get_box_mesh(0, 0, 0, 7, 7, 0.8, '#228B22', lighting=dict(ambient=0.5, diffuse=0.7, specular=0.1, roughness=0.8))
+    traces.append(fr4)
+    
+    copper = get_box_mesh(0, 0, 0.8, 3, 3, 0.1, '#b87333', lighting=dict(ambient=0.4, diffuse=0.8, specular=1.5, roughness=0.2))
+    traces.append(copper)
+    
+    # 5. Blood Droplet Marker
+    if show_droplet:
+        droplet = go.Scatter3d(
+            x=[0], y=[0], z=[1.15],
+            mode='markers',
+            marker=dict(size=15, color='#8a0303', symbol='circle', opacity=0.9),
+            hoverinfo='skip'
+        )
+        traces.append(droplet)
+        
+    fig = go.Figure(data=traces)
+    
+    camera = dict(
+        up=dict(x=0, y=0, z=1),
+        center=dict(x=-0.5, y=0, z=0),
+        eye=dict(x=1.3, y=-1.5, z=0.8)
+    )
+    
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(visible=False, range=[-11.5, 3.5]),
+            yaxis=dict(visible=False, range=[-4.5, 4.5]),
+            zaxis=dict(visible=False, range=[0, 14.5]),
+            aspectmode='data'
+        ),
+        scene_camera=camera,
+        margin=dict(l=0, r=0, t=0, b=0),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        showlegend=False
+    )
+    return fig
+
 
 def generate_noisy_s11(f, f_res, depth, q_factor=20):
     gamma = f_res / (2 * q_factor)
@@ -198,38 +250,6 @@ def generate_noisy_s11(f, f_res, depth, q_factor=20):
     noise = np.random.normal(0, 0.4, size=len(f)) + np.random.uniform(-0.2, 0.2, size=len(f))
     ripple = 0.5 * np.sin(2 * np.pi * 5 * f)
     return dip + noise + ripple
-
-@st.cache_data(show_spinner=False)
-def get_3d_fig(show_droplet=False):
-    fig = plt.figure(figsize=(10, 8), facecolor='#0a0f1a')
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_facecolor('#0a0f1a')
-    ax.axis('off')
-    
-    ax.set_xlim(-11.5, 3.5)
-    ax.set_ylim(-4.5, 4.5)
-    ax.set_zlim(0, 14.5)
-    ax.view_init(elev=15, azim=40)
-    
-    draw_rect_3d(ax, -9, 0, 0, 5, 8, 12, color='#888888', edge_color='#555555')
-    draw_rect_3d(ax, -6.45, -1, 5, 0.15, 5, 5, color='#00FFFF', edge_color='#008B8B')
-    draw_cylinder(ax, -6.5, 2.0, 8.0, 0.4, 0.8, color='silver', orientation='x')
-    
-    draw_realistic_horn(ax, 0, 0, 14, 11, 5)
-    
-    t = np.linspace(0, 1, 60)
-    cx = -5.7 + 5.1*t
-    cy = 2.0 * (1 - t)
-    cz = 8.0 * (1 - t) + 12.5 * t - 4.5*np.sin(np.pi*t) 
-    ax.plot(cx, cy, cz, color='#1A1A1A', linewidth=6, solid_capstyle='round')
-    
-    draw_rect_3d(ax, 0, 0, 0, 7, 7, 0.8, color='#2e8b57', edge_color='#006400')
-    draw_rect_3d(ax, 0, 0, 0.8, 3, 3, 0.1, color='#FF8C00', edge_color='#CD6600')
-    
-    if show_droplet:
-        draw_hemisphere(ax, 0, 0, 0.9, 0.6, color='#FF0000')
-        
-    return fig
 
 def get_2d_fig(f_array, ref_y, target_y=None, prof=None, selected_sample=None):
     fig, ax = plt.subplots(figsize=(10, 6), facecolor='#0a0f1a')
@@ -271,7 +291,7 @@ col1, col2 = st.columns([1, 1])
 if not scan_btn:
     with col1:
         st.markdown("<h3 style='text-align: center;'>► 3D DIGITAL TWIN</h3>", unsafe_allow_html=True)
-        st.pyplot(get_3d_fig(show_droplet=False))
+        st.plotly_chart(get_3d_plotly_fig(show_droplet=False), use_container_width=True)
         
     with col2:
         st.markdown("<h3 style='text-align: center;'>► S11 LIVE FEED</h3>", unsafe_allow_html=True)
@@ -283,9 +303,9 @@ if scan_btn:
     with col1:
         st.markdown("<h3 style='text-align: center;'>► 3D DIGITAL TWIN</h3>", unsafe_allow_html=True)
         fig3d_container = st.empty()
-        fig3d_container.pyplot(get_3d_fig(show_droplet=False))
+        fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=False), use_container_width=True)
         time.sleep(0.5) 
-        fig3d_container.pyplot(get_3d_fig(show_droplet=True))
+        fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=True), use_container_width=True)
         
     with col2:
         st.markdown("<h3 style='text-align: center;'>► S11 LIVE FEED</h3>", unsafe_allow_html=True)

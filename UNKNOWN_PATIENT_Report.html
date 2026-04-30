@@ -1,0 +1,94 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Diagnostic Report - UNKNOWN_PATIENT</title>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 40px; }
+                .container { background-color: #fff; max-width: 800px; margin: auto; padding: 40px; border-top: 6px solid #0056b3; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 4px; }
+                .header { border-bottom: 2px solid #0056b3; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
+                .header h1 { color: #0056b3; margin: 0; font-size: 28px; letter-spacing: 1px; }
+                .header p { color: #777; margin: 8px 0 0 0; font-size: 15px; font-weight: bold; }
+                .info-section { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 16px; background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #e9ecef; }
+                .info-section span { font-weight: bold; color: #495057; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 35px; }
+                th, td { padding: 14px; border: 1px solid #dee2e6; text-align: left; font-size: 15px; }
+                th { background-color: #f8f9fa; color: #0056b3; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+                .alert-box { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 25px; text-align: left; border-radius: 6px; margin-bottom: 40px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+                .alert-box .diag-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5c6cb; padding-bottom: 10px; margin-bottom: 15px; }
+                .alert-box h2 { margin: 0; font-size: 22px; text-transform: uppercase; }
+                .alert-box .severity-badge { padding: 6px 12px; border-radius: 4px; background-color: #721c24; color: #fff; font-size: 14px; font-weight: bold; }
+                .alert-box p.diag { margin: 0 0 15px 0; font-size: 20px; font-weight: bold; }
+                .alert-box p.conf { font-size: 15px; margin-top: 0; font-weight: normal; }
+                
+                .interpretation-section { background: #fdfdfe; border-left: 4px solid #0056b3; padding: 20px; margin-bottom: 40px; }
+                .interpretation-section h3 { margin-top: 0; color: #0056b3; font-size: 18px; }
+                .interpretation-section p { line-height: 1.6; margin-bottom: 0; font-size: 15px; color: #444; }
+                
+                .footer { margin-top: 60px; font-size: 14px; color: #6c757d; }
+                .signature-box { margin-top: 50px; display: flex; justify-content: space-between; }
+                .signature { border-top: 1px solid #343a40; width: 250px; padding-top: 10px; text-align: center; font-style: italic; color: #343a40; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>ISIA BIOMEDICAL RESEARCH FACILITY</h1>
+                    <p>OFFICIAL MICROWAVE BIOSENSOR DIAGNOSTIC REPORT</p>
+                </div>
+                
+                <div class="info-section">
+                    <div><span>Patient Name:</span> UNKNOWN_PATIENT</div>
+                    <div><span>Date & Time:</span> 2026-04-30 09:42:57</div>
+                </div>
+                
+                <table>
+                    <tr>
+                        <th colspan="2">Raw Microwave Sensor Data</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Reference Baseline Frequency</strong></td>
+                        <td>9.200 GHz</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Detected Resonance Frequency</strong></td>
+                        <td>8.600 GHz</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Frequency Shift (&Delta;f)</strong></td>
+                        <td>-600 MHz</td>
+                    </tr>
+                    <tr>
+                        <td><strong>S11 Minimum Return Loss</strong></td>
+                        <td>-30.0 dB</td>
+                    </tr>
+                </table>
+                
+                <div class="alert-box">
+                    <div class="diag-header">
+                        <h2>AI Diagnosis Result</h2>
+                        <div class="severity-badge">CRITICAL (ONCOLOGY)</div>
+                    </div>
+                    <p class="diag">Lung Cancer (A549)</p>
+                    <p class="conf">AI Confidence Score: <strong>94.61%</strong></p>
+                </div>
+                
+                <div class="interpretation-section">
+                    <h3>Detailed Clinical Interpretation & Doctor's Notes</h3>
+                    <p><strong>URGENT:</strong> The significant frequency shift (&Delta;f) indicates severe cellular abnormalities consistent with malignant tissue presence. Immediate referral to an oncology specialist for comprehensive biopsy and imaging is strictly required.</p>
+                </div>
+                
+                <div class="footer">
+                    <p><strong>Remarks:</strong> This diagnostic test utilizes advanced metamaterial electromagnetic absorption for cellular dielectric profiling. Signals are processed through high-frequency Vector Network Analyzers to extract precise cellular shifts.</p>
+                    <div class="signature-box">
+                        <div></div>
+                        <div class="signature">
+                            Lead Biomedical Engineer
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        
