@@ -107,7 +107,12 @@ PROFILES = {
     "Malaria": {"f_res": 8.4, "depth": -33.0, "color": "#FF3333", "severity": "CRITICAL"},
     "Anemia": {"f_res": 9.7, "depth": -37.0, "color": "#00FFFF", "severity": "CHRONIC"},
     "Dehydration": {"f_res": 7.7, "depth": -25.0, "color": "#A52A2A", "severity": "CRITICAL"},
-    "Sepsis (Blood Infection)": {"f_res": 8.5, "depth": -30.0, "color": "#800080", "severity": "CRITICAL"}
+    "Sepsis (Blood Infection)": {"f_res": 8.5, "depth": -30.0, "color": "#800080", "severity": "CRITICAL"},
+    "Breast Cancer (Metastatic)": {"f_res": 8.3, "depth": -31.0, "color": "#FF69B4", "severity": "CRITICAL"},
+    "Lung Cancer (Advanced)": {"f_res": 8.1, "depth": -29.0, "color": "#8B4513", "severity": "CRITICAL"},
+    "Colorectal Cancer": {"f_res": 8.4, "depth": -32.0, "color": "#B8860B", "severity": "CRITICAL"},
+    "Prostate Cancer": {"f_res": 8.6, "depth": -34.0, "color": "#4682B4", "severity": "CRITICAL"},
+    "Brain Tumor (Biomarkers)": {"f_res": 7.9, "depth": -27.0, "color": "#483D8B", "severity": "CRITICAL"}
 }
 
 # --- Plotly 3D Drawing Helpers ---
@@ -387,21 +392,23 @@ else:
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
-            system_prompt = """You are a highly advanced Senior Clinical Pathologist and RF Biomedical Engineer working in a state-of-the-art hospital system.
-Your goal is to generate a strictly professional, hospital-grade Electronic Health Record (EHR) report based on microwave dielectric shifts in blood plasma.
+            system_prompt = """You are a highly advanced Senior Clinical Pathologist working in a state-of-the-art hospital system.
+Your goal is to generate a strictly professional, hospital-grade Electronic Health Record (EHR) report based on the provided simulated disease.
+
+STRICT RULE: The "Doctor's Clinical Notes" and "Diagnosis" sections MUST NOT mention RF shifts, VNA, microwaves, or antennas. It must read entirely like a real medical doctor explaining the biological and physiological nature of the disease, and why it happens in the body.
 
 You MUST structure your response with beautiful Markdown, bold text, and emojis, adhering strictly to the following format:
 
-### 📋 Lab Results Table
-(Output a Markdown table with columns: Parameter/Test | Detected RF Shift | Normal Range | Status (Normal/Abnormal))
+### 🩸 Clinical Lab Results
+(Output a beautiful Markdown table. Based on the selected disease, hallucinate/estimate realistic medical parameters. e.g., if Leukemia, show WBC counts; if Diabetes, show Blood Glucose levels. Columns: Test Name | Result | Normal Range | Flag (High/Low/Normal))
 
-### 👨‍⚕️ Doctor's Clinical Notes
-(A short, professional summary of what the RF shift implies physically and biologically about the blood's permittivity and dielectric constant)
+### 🩺 Doctor's Clinical Notes
+(A professional paragraph explaining the biological state of the patient based on the disease. Focus purely on medical biology, cellular mechanics, or metabolics. Do NOT mention engineering terms.)
 
 ### 💊 Rx Prescription & Action Plan
-(A specific, medically sound recommendation list with immediate actions, medications, or dosages based on the simulated disease)"""
+(A beautiful Markdown table or list of specific medications, e.g., Chemotherapy drugs for cancer, Metformin for Diabetes, dosages, and frequency of use, plus immediate clinical actions.)"""
             
-            user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate the medical report as instructed."
+            user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
             data = {
                 "model": "llama-3.3-70b-versatile",
