@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 import random
 import time
 import base64
+import requests
+import json
 
 st.set_page_config(page_title="ISIA BIOMEDICAL", layout="wide")
 plt.style.use('dark_background')
@@ -97,13 +99,11 @@ st.markdown(f"""
 
 # --- Database ---
 PROFILES = {
-    "Normal Blood (Reference)": {"f_res": 9.2, "depth": -40.0, "color": "#00FF00", "severity": "HEALTHY"},
-    "Chronic Diabetes (High Glucose)": {"f_res": 9.4, "depth": -38.0, "color": "#FFA500", "severity": "CHRONIC"},
-    "High Cholesterol": {"f_res": 9.6, "depth": -39.0, "color": "#FFD700", "severity": "CHRONIC"},
-    "Breast Cancer (MCF-7)": {"f_res": 8.8, "depth": -35.0, "color": "#FF3333", "severity": "CRITICAL"},
-    "Prostate Cancer (PC-3)": {"f_res": 8.9, "depth": -32.0, "color": "#FF00FF", "severity": "CRITICAL"},
-    "Lung Cancer (A549)": {"f_res": 8.6, "depth": -30.0, "color": "#FF8C00", "severity": "CRITICAL"},
-    "Blood Cancer (Leukemia)": {"f_res": 8.2, "depth": -28.0, "color": "#FF0000", "severity": "CRITICAL"}
+    "Healthy (Reference)": {"f_res": 9.2, "depth": -40.0, "color": "#00FF00", "severity": "HEALTHY"},
+    "Leukemia": {"f_res": 8.0, "depth": -28.0, "color": "#FF0000", "severity": "CRITICAL"},
+    "Diabetes (Hyperglycemia)": {"f_res": 8.6, "depth": -38.0, "color": "#FFA500", "severity": "CHRONIC"},
+    "Hypercholesterolemia": {"f_res": 9.6, "depth": -39.0, "color": "#FFD700", "severity": "CHRONIC"},
+    "Malaria": {"f_res": 8.4, "depth": -33.0, "color": "#FF3333", "severity": "CRITICAL"}
 }
 
 # --- Plotly 3D Drawing Helpers ---
@@ -282,13 +282,21 @@ selected_sample = st.sidebar.selectbox("SELECT BIOMATERIAL SAMPLE", list(PROFILE
 st.sidebar.markdown("---")
 scan_btn = st.sidebar.button("INITIATE RF SCAN", type="primary", use_container_width=True)
 
+if "scan_active" not in st.session_state:
+    st.session_state.scan_active = False
+
+if scan_btn:
+    st.session_state.scan_active = True
+    st.session_state.report_generated = False
+    st.session_state.ai_report = ""
+
 f_array = np.linspace(8, 11, 500)
-ref_prof = PROFILES["Normal Blood (Reference)"]
+ref_prof = PROFILES["Healthy (Reference)"]
 ref_y = generate_noisy_s11(f_array, ref_prof["f_res"], ref_prof["depth"])
 
 col1, col2 = st.columns([1, 1])
 
-if not scan_btn:
+if not st.session_state.scan_active:
     with col1:
         st.markdown("<h3 style='text-align: center;'>► 3D DIGITAL TWIN</h3>", unsafe_allow_html=True)
         st.plotly_chart(get_3d_plotly_fig(show_droplet=False), use_container_width=True)
@@ -299,13 +307,16 @@ if not scan_btn:
         
     st.info("System Initialized. Awaiting sample load and RF telemetry scan...")
 
-if scan_btn:
+else:
     with col1:
         st.markdown("<h3 style='text-align: center;'>► 3D DIGITAL TWIN</h3>", unsafe_allow_html=True)
-        fig3d_container = st.empty()
-        fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=False), use_container_width=True)
-        time.sleep(0.5) 
-        fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=True), use_container_width=True)
+        if scan_btn:
+            fig3d_container = st.empty()
+            fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=False), use_container_width=True)
+            time.sleep(0.5) 
+            fig3d_container.plotly_chart(get_3d_plotly_fig(show_droplet=True), use_container_width=True)
+        else:
+            st.plotly_chart(get_3d_plotly_fig(show_droplet=True), use_container_width=True)
         
     with col2:
         st.markdown("<h3 style='text-align: center;'>► S11 LIVE FEED</h3>", unsafe_allow_html=True)
@@ -324,7 +335,7 @@ if scan_btn:
         conf = random.uniform(92.1, 98.8)
         
     st.markdown("<br><hr style='border-color: #0ea5e9;'><br>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align: center; color: #00ffff; text-shadow: 0 0 10px #00ffff;'>✚ AI DOCTOR'S CLINICAL INTERPRETATION</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #00ffff; text-shadow: 0 0 10px #00ffff;'>🧠 AI Pathologist & Clinical Report</h2>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; color: #7dd3fc;'><strong>Patient ID:</strong> {patient_name} | <strong>Timestamp:</strong> {time.strftime('%Y-%m-%d %H:%M:%S')}</p><br>", unsafe_allow_html=True)
     
     col_res1, col_res2, col_res3, col_res4 = st.columns(4)
@@ -338,4 +349,52 @@ if scan_btn:
     elif severity == "CHRONIC":
         st.markdown(f"<div class='alert-panel alert-chronic'>⚠️ <strong>DIAGNOSIS: {selected_sample} (CHRONIC - MANAGEABLE)</strong><br><br>The S11 parameter shift indicates a chronic metabolic condition (e.g., elevated glucose or lipids). While this is a manageable chronic disease, it requires lifestyle modifications, dietary control, and routine follow-ups. This is highly treatable and not immediately life-threatening if managed properly.</div>", unsafe_allow_html=True)
     else: # CRITICAL
-        st.markdown(f"<div class='alert-panel alert-critical'>🚨 <strong>URGENT DIAGNOSIS: {selected_sample} (CRITICAL - ONCOLOGY)</strong><br><br>The significant frequency shift (Δf) indicates severe cellular abnormalities consistent with malignant tissue presence. Immediate referral to an oncology specialist for comprehensive biopsy and imaging is strictly required.</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='alert-panel alert-critical'>🚨 <strong>URGENT DIAGNOSIS: {selected_sample} (CRITICAL - ABNORMALITY)</strong><br><br>The significant frequency shift (Δf) indicates severe cellular abnormalities. Immediate referral to a specialist for comprehensive biopsy and imaging is strictly required.</div>", unsafe_allow_html=True)
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    if "report_generated" not in st.session_state:
+        st.session_state.report_generated = False
+        st.session_state.ai_report = ""
+
+    report_btn = st.button("✨ Generate Comprehensive AI Report", type="primary", use_container_width=True)
+    
+    if report_btn:
+        st.session_state.report_generated = True
+        with st.spinner("Loading/Analyzing RF Data..."):
+            api_key = "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"
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            system_prompt = "Act as a Senior Clinical Pathologist and RF Biomedical Engineer."
+            user_prompt = f"Patient Name: {patient_name}\nSelected Disease: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate a highly structured medical report including:\n- Patient & Test Summary\n- RF Telemetry Analysis (Explaining the physical shift based on the dielectric constant)\n- Clinical Diagnosis\n- Recommended Next Steps/Treatments."
+            
+            data = {
+                "model": "google/gemini-pro",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ]
+            }
+            try:
+                response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+                if response.status_code == 200:
+                    result = response.json()
+                    st.session_state.ai_report = result["choices"][0]["message"]["content"]
+                else:
+                    st.session_state.ai_report = f"Error: API returned status code {response.status_code}\\n{response.text}"
+            except Exception as e:
+                st.session_state.ai_report = f"Error calling API: {str(e)}"
+
+    if st.session_state.report_generated and st.session_state.ai_report:
+        st.markdown(f\"\"\"
+        <div style='background: rgba(10, 15, 26, 0.9); border: 2px solid #ff00ff; border-radius: 12px; padding: 30px; box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); margin-top: 30px; font-family: "Courier New", Courier, monospace;'>
+            <h3 style='color: #ff00ff; border-bottom: 1px solid #ff00ff; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center;'>
+                <span style='margin-right: 10px; font-size: 24px;'>🔬</span> OFFICIAL AI CLINICAL REPORT
+            </h3>
+            <div style='color: #e0f2fe; line-height: 1.8; font-size: 16px; white-space: pre-wrap;'>
+{st.session_state.ai_report}
+            </div>
+        </div>
+        \"\"\", unsafe_allow_html=True)
