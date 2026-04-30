@@ -375,7 +375,7 @@ else:
             user_prompt = f"Patient Name: {patient_name}\nSelected Disease: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate a highly structured medical report including:\n- Patient & Test Summary\n- RF Telemetry Analysis (Explaining the physical shift based on the dielectric constant)\n- Clinical Diagnosis\n- Recommended Next Steps/Treatments."
             
             data = {
-                "model": "llama3-8b-8192",
+                "model": "llama-3.3-70b-versatile",
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
