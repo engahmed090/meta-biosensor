@@ -360,9 +360,13 @@ else:
     report_btn = st.button("✨ Generate Comprehensive AI Report", type="primary", use_container_width=True)
     
     if report_btn:
+        if "GROQ_API_KEY" not in st.secrets:
+            st.error("🚨 GROQ_API_KEY not found in Streamlit Secrets. Please add it to your `.streamlit/secrets.toml` or Streamlit Cloud settings to generate reports.")
+            st.stop()
+            
         st.session_state.report_generated = True
         with st.spinner("Loading/Analyzing RF Data..."):
-            api_key = "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"
+            api_key = st.secrets["GROQ_API_KEY"]
             headers = {
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
@@ -371,14 +375,14 @@ else:
             user_prompt = f"Patient Name: {patient_name}\nSelected Disease: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate a highly structured medical report including:\n- Patient & Test Summary\n- RF Telemetry Analysis (Explaining the physical shift based on the dielectric constant)\n- Clinical Diagnosis\n- Recommended Next Steps/Treatments."
             
             data = {
-                "model": "google/gemini-pro",
+                "model": "llama3-70b-8192",
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ]
             }
             try:
-                response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+                response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=data)
                 if response.status_code == 200:
                     result = response.json()
                     st.session_state.ai_report = result["choices"][0]["message"]["content"]
