@@ -383,12 +383,12 @@ else:
                     result = response.json()
                     st.session_state.ai_report = result["choices"][0]["message"]["content"]
                 else:
-                    st.session_state.ai_report = f"Error: API returned status code {response.status_code}\\n{response.text}"
+                    st.session_state.ai_report = f"Error: API returned status code {response.status_code}\n{response.text}"
             except Exception as e:
                 st.session_state.ai_report = f"Error calling API: {str(e)}"
 
     if st.session_state.report_generated and st.session_state.ai_report:
-        st.markdown(f\"\"\"
+        st.markdown(f"""
         <div style='background: rgba(10, 15, 26, 0.9); border: 2px solid #ff00ff; border-radius: 12px; padding: 30px; box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); margin-top: 30px; font-family: "Courier New", Courier, monospace;'>
             <h3 style='color: #ff00ff; border-bottom: 1px solid #ff00ff; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center;'>
                 <span style='margin-right: 10px; font-size: 24px;'>🔬</span> OFFICIAL AI CLINICAL REPORT
@@ -397,4 +397,4 @@ else:
 {st.session_state.ai_report}
             </div>
         </div>
-        \"\"\", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
