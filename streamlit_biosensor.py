@@ -7,6 +7,7 @@ import time
 import base64
 import requests
 import json
+import pandas as pd
 
 st.set_page_config(page_title="ISIA BIOMEDICAL", layout="wide")
 plt.style.use('dark_background')
@@ -103,7 +104,10 @@ PROFILES = {
     "Leukemia": {"f_res": 8.0, "depth": -28.0, "color": "#FF0000", "severity": "CRITICAL"},
     "Diabetes (Hyperglycemia)": {"f_res": 8.6, "depth": -38.0, "color": "#FFA500", "severity": "CHRONIC"},
     "Hypercholesterolemia": {"f_res": 9.6, "depth": -39.0, "color": "#FFD700", "severity": "CHRONIC"},
-    "Malaria": {"f_res": 8.4, "depth": -33.0, "color": "#FF3333", "severity": "CRITICAL"}
+    "Malaria": {"f_res": 8.4, "depth": -33.0, "color": "#FF3333", "severity": "CRITICAL"},
+    "Anemia": {"f_res": 9.7, "depth": -37.0, "color": "#00FFFF", "severity": "CHRONIC"},
+    "Dehydration": {"f_res": 7.7, "depth": -25.0, "color": "#A52A2A", "severity": "CRITICAL"},
+    "Sepsis (Blood Infection)": {"f_res": 8.5, "depth": -30.0, "color": "#800080", "severity": "CRITICAL"}
 }
 
 # --- Plotly 3D Drawing Helpers ---
@@ -285,10 +289,22 @@ scan_btn = st.sidebar.button("INITIATE RF SCAN", type="primary", use_container_w
 if "scan_active" not in st.session_state:
     st.session_state.scan_active = False
 
+if "patient_history" not in st.session_state:
+    st.session_state.patient_history = []
+
 if scan_btn:
     st.session_state.scan_active = True
     st.session_state.report_generated = False
     st.session_state.ai_report = ""
+    
+    prof_tmp = PROFILES[selected_sample]
+    delta_f_tmp = (prof_tmp['f_res'] - 9.2) * 1000
+    st.session_state.patient_history.append({
+        "Patient ID": patient_name,
+        "Condition": selected_sample,
+        "RF Shift (MHz)": f"{delta_f_tmp:+.0f}",
+        "Timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
+    })
 
 f_array = np.linspace(8, 11, 500)
 ref_prof = PROFILES["Healthy (Reference)"]
@@ -371,8 +387,21 @@ else:
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
-            system_prompt = "Act as a Senior Clinical Pathologist and RF Biomedical Engineer."
-            user_prompt = f"Patient Name: {patient_name}\nSelected Disease: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate a highly structured medical report including:\n- Patient & Test Summary\n- RF Telemetry Analysis (Explaining the physical shift based on the dielectric constant)\n- Clinical Diagnosis\n- Recommended Next Steps/Treatments."
+            system_prompt = """You are a highly advanced Senior Clinical Pathologist and RF Biomedical Engineer working in a state-of-the-art hospital system.
+Your goal is to generate a strictly professional, hospital-grade Electronic Health Record (EHR) report based on microwave dielectric shifts in blood plasma.
+
+You MUST structure your response with beautiful Markdown, bold text, and emojis, adhering strictly to the following format:
+
+### 📋 Lab Results Table
+(Output a Markdown table with columns: Parameter/Test | Detected RF Shift | Normal Range | Status (Normal/Abnormal))
+
+### 👨‍⚕️ Doctor's Clinical Notes
+(A short, professional summary of what the RF shift implies physically and biologically about the blood's permittivity and dielectric constant)
+
+### 💊 Rx Prescription & Action Plan
+(A specific, medically sound recommendation list with immediate actions, medications, or dosages based on the simulated disease)"""
+            
+            user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\nVNA Frequency Shift: {delta_f/1000:.3f} GHz.\nPlease generate the medical report as instructed."
             
             data = {
                 "model": "llama-3.3-70b-versatile",
@@ -402,3 +431,13 @@ else:
             </div>
         </div>
         """, unsafe_allow_html=True)
+        
+    st.markdown("<br><hr style='border-color: #0ea5e9;'><br>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #00ffff; text-shadow: 0 0 10px #00ffff;'>🗄️ Hospital Patient Database</h2>", unsafe_allow_html=True)
+    
+    if len(st.session_state.patient_history) > 0:
+        df = pd.DataFrame(st.session_state.patient_history)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+    else:
+        st.info("No patient records found in the current session. Run an RF scan to populate the database.")
+
