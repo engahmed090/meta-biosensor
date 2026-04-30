@@ -429,15 +429,15 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
     if st.session_state.report_generated and st.session_state.ai_report:
         st.markdown(f"""
-        <div style='background: rgba(10, 15, 26, 0.9); border: 2px solid #ff00ff; border-radius: 12px; padding: 30px; box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); margin-top: 30px; font-family: "Courier New", Courier, monospace;'>
-            <h3 style='color: #ff00ff; border-bottom: 1px solid #ff00ff; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center;'>
+        <div style='background: rgba(10, 15, 26, 0.9); border: 2px solid #ff00ff; border-radius: 12px; padding: 20px 30px; box-shadow: 0 0 25px rgba(255, 0, 255, 0.3); margin-top: 30px; font-family: "Courier New", Courier, monospace;'>
+            <h3 style='color: #ff00ff; margin: 0; display: flex; align-items: center;'>
                 <span style='margin-right: 10px; font-size: 24px;'>🔬</span> OFFICIAL AI CLINICAL REPORT
             </h3>
-            <div style='color: #e0f2fe; line-height: 1.8; font-size: 16px; white-space: pre-wrap;'>
-{st.session_state.ai_report}
-            </div>
         </div>
+        <br>
         """, unsafe_allow_html=True)
+        
+        st.markdown(st.session_state.ai_report)
         
     st.markdown("<br><hr style='border-color: #0ea5e9;'><br>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align: center; color: #00ffff; text-shadow: 0 0 10px #00ffff;'>🗄️ Hospital Patient Database</h2>", unsafe_allow_html=True)
