@@ -289,7 +289,7 @@ st.sidebar.markdown("---")
 
 # --- QR Code for Live App ---
 st.sidebar.markdown("<p style='text-align: center; color: #7dd3fc; font-family: Courier New, monospace; font-size: 13px; letter-spacing: 1px;'>📱 Scan to Try Live!</p>", unsafe_allow_html=True)
-st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://meta-biosensor.streamlit.app/", use_container_width=True)
+st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://meta-biosensor.streamlit.app/", width=150)
 st.sidebar.markdown("---")
 
 # --- Language Selector ---
@@ -424,23 +424,18 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nYou are a medical system. Output strictly in this exact format.
-
-RULE 1: Medical test names (like RBC, WBC, SpO2, CBC, Hemoglobin, Glucose, CEA) MUST remain in English in the table.
-RULE 2: Write the notes and prescription in very simple Sorani Kurdish. NO English letters in the notes!
+                system_prompt += """\n\nYou are a professional Medical AI. You must respond in pure, natural Sorani Kurdish (Arabic script). DO NOT use English letters inside Kurdish sentences. Follow this EXACT markdown structure, keeping scientific test names in English:
 
 ### 🩸 ئەنجامی پشکنینە کلینیکییەکان
-
-| ناوی پشکنین (English) | ئەنجام | ڕێژەی ئاسایی | دۆخ |
+| ناوی پشکنین | ئەنجام | ڕێژەی ئاسایی | دۆخ |
 |---|---|---|---|
-(Fill rows with realistic values for the selected disease. Keep test names in English.)
+(Insert tests here. e.g., | WBC | ... )
 
 ### 🩺 تێبینییە کلینیکییەکانی پزیشک
-(Write exactly 2 simple sentences in Sorani Kurdish explaining the diagnosis. Do not use complex words.)
+(Write 2-3 sentences in pure Sorani Kurdish explaining the condition. No English words here).
 
 ### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر
-- (ئەكت یەکەم بە زمانی کوردیی سادە)
-- (ئەكت دوەم بە زمانی کوردیی سادە)"""
+(List 2-3 actionable medical recommendations in pure Sorani Kurdish using bullet points)."""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -478,10 +473,13 @@ RULE 2: Write the notes and prescription in very simple Sorani Kurdish. NO Engli
                 <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-                [data-testid="stMainBlockContainer"] {
+                /* Target ONLY markdown inside the main app body, leaving sidebar alone */
+                [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
                     font-family: 'Cairo', sans-serif !important;
+                    font-size: 18px !important;
+                    line-height: 2.0 !important;
                 }
                 [data-testid="stMainBlockContainer"] table {
                     direction: rtl !important;
@@ -491,7 +489,14 @@ RULE 2: Write the notes and prescription in very simple Sorani Kurdish. NO Engli
                 [data-testid="stMainBlockContainer"] th,
                 [data-testid="stMainBlockContainer"] td {
                     text-align: right !important;
-                    padding: 10px !important;
+                    padding: 12px !important;
+                }
+                [data-testid="stMainBlockContainer"] h1,
+                [data-testid="stMainBlockContainer"] h2,
+                [data-testid="stMainBlockContainer"] h3 {
+                    direction: rtl !important;
+                    text-align: right !important;
+                    font-family: 'Cairo', sans-serif !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
