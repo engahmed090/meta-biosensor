@@ -424,24 +424,16 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nCRITICAL INSTRUCTION: You are a highly professional Kurdish Medical Doctor. You MUST write the response in fluent, natural Sorani Kurdish, following these STRICT rules:
-1. DO NOT translate scientific medical test names (Biomarkers) into Kurdish. Keep the standard abbreviations in English (e.g., CBC, Hemoglobin, SpO2, CEA, Glucose, LFT). Translating these creates nonsensical words.
-2. Use this EXACT Kurdish glossary for the clinical table headers:
-- Test Name = ناوی پشکنین
-- Result = ئەنجام
-- Normal Range = ڕێژەی ئاسایی
-- Flag = دۆخ
-3. Use standard Kurdish medical terms in the table and text:
-- Normal = ئاسایی
-- High = بەرز
-- Low = نزم
-- Patient = نەخۆش
-- Treatment/Action Plan = چارەسەر و ڕێنمایی پزیشکی
-4. Ensure the grammar in the "Doctor's Notes" is natural Sorani. Do not use awkward literal phrases like 'شەخسی نەخۆش' or 'مۆدی مامناوەند'. Speak with a professional, empathetic medical tone.
-5. You MUST use these EXACT Kurdish headings for the 3 sections:
-- ### 🩸 ئەنجامی پشکنینە کلینیکییەکان
-- ### 🩺 تێبینییە کلینیکییەکانی پزیشک
-- ### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر"""
+                system_prompt += """\n\nCRITICAL: You are hallucinating Latin letters inside Kurdish words. You MUST write in clear, simple Sorani Kurdish using ONLY the Kurdish-Arabic alphabet. Do not invent words. You MUST output your response EXACTLY following this structure:
+
+### 🩸 ئەنجامی پشکنینە کلینیکییەکان
+(Provide the Markdown table here with headers: ناوی پشکنین | ئەنجام | ڕێژەی ئاسایی | دۆخ)
+
+### 🩺 تێبینییە کلینیکییەکانی پزیشک
+(Write exactly 3 clear, simple sentences in Sorani Kurdish explaining the physical diagnosis based on the disease. Do NOT use any English letters here).
+
+### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر
+(Provide a bulleted list of 3 specific medications or actions in Sorani Kurdish)."""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -473,34 +465,34 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
         """, unsafe_allow_html=True)
         
         # Inject RTL CSS only when Kurdish (Sorani) is selected
+        # Scoped to .stMain to prevent sidebar layout from breaking
         if report_language == "Kurdish (Sorani)":
             st.markdown("""
                 <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-                [data-testid="stMarkdownContainer"] {
+                .stMain [data-testid="stMarkdownContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
                     font-family: 'Cairo', sans-serif !important;
                     font-size: 18px !important;
                     line-height: 2.0 !important;
                 }
-                [data-testid="stTable"], table {
+                .stMain [data-testid="stTable"], .stMain table {
                     direction: rtl !important;
                     text-align: right !important;
                     width: 100%;
                     font-family: 'Cairo', sans-serif !important;
-                    font-size: 16px !important;
                 }
-                th, td {
+                .stMain th, .stMain td {
                     text-align: right !important;
                     padding: 12px !important;
                 }
-                ul, ol {
+                .stMain ul, .stMain ol {
                     direction: rtl !important;
                     padding-right: 30px !important;
                 }
-                h1, h2, h3, h4 {
+                .stMain h1, .stMain h2, .stMain h3, .stMain h4 {
                     font-family: 'Cairo', sans-serif !important;
                     text-align: right !important;
                 }
