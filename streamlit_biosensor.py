@@ -289,7 +289,7 @@ st.sidebar.markdown("---")
 
 # --- QR Code for Live App ---
 st.sidebar.markdown("<p style='text-align: center; color: #7dd3fc; font-family: Courier New, monospace; font-size: 13px; letter-spacing: 1px;'>📱 Scan to Try Live!</p>", unsafe_allow_html=True)
-st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://meta-biosensor.streamlit.app/", width=150)
+st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://meta-biosensor.streamlit.app/", width=250)
 st.sidebar.markdown("---")
 
 # --- Language Selector ---
