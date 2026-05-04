@@ -437,7 +437,11 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 - Low = نزم
 - Patient = نەخۆش
 - Treatment/Action Plan = چارەسەر و ڕێنمایی پزیشکی
-4. Ensure the grammar in the "Doctor's Notes" is natural Sorani. Do not use awkward literal phrases like 'شەخسی نەخۆش' or 'مۆدی مامناوەند'. Speak with a professional, empathetic medical tone."""
+4. Ensure the grammar in the "Doctor's Notes" is natural Sorani. Do not use awkward literal phrases like 'شەخسی نەخۆش' or 'مۆدی مامناوەند'. Speak with a professional, empathetic medical tone.
+5. You MUST use these EXACT Kurdish headings for the 3 sections:
+- ### 🩸 ئەنجامی پشکنینە کلینیکییەکان
+- ### 🩺 تێبینییە کلینیکییەکانی پزیشک
+- ### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر"""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -472,28 +476,32 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
         if report_language == "Kurdish (Sorani)":
             st.markdown("""
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
                 [data-testid="stMarkdownContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
-                    font-family: 'Tahoma', 'Arial', sans-serif !important;
-                    line-height: 1.9 !important;
-                    font-size: 16px !important;
+                    font-family: 'Cairo', sans-serif !important;
+                    font-size: 18px !important;
+                    line-height: 2.0 !important;
                 }
                 [data-testid="stTable"], table {
                     direction: rtl !important;
                     text-align: right !important;
                     width: 100%;
+                    font-family: 'Cairo', sans-serif !important;
+                    font-size: 16px !important;
                 }
                 th, td {
                     text-align: right !important;
-                    padding: 10px !important;
+                    padding: 12px !important;
                 }
                 ul, ol {
                     direction: rtl !important;
-                    padding-right: 25px !important;
-                    padding-left: 0 !important;
+                    padding-right: 30px !important;
                 }
-                li {
+                h1, h2, h3, h4 {
+                    font-family: 'Cairo', sans-serif !important;
                     text-align: right !important;
                 }
                 </style>
