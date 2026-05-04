@@ -424,7 +424,7 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nCRITICAL INSTRUCTION: You MUST write the ENTIRE response, including the Markdown tables, test names, the doctor's clinical notes, and the Rx prescription, strictly in Sorani Kurdish (Kurdish Arabic script). Ensure the medical terminology is accurate and natural in Sorani Kurdish."""
+                system_prompt += """\n\nCRITICAL INSTRUCTION: You MUST write the ENTIRE response strictly in pure Sorani Kurdish. ABSOLUTELY NO ENGLISH WORDS are allowed in the middle of Kurdish sentences, as it breaks RTL text rendering. If you must use a medical term, write it using Kurdish letters. Keep formatting simple and clean."""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -462,12 +462,25 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
                 [data-testid="stMarkdownContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
-                    font-family: 'Arial', sans-serif;
+                    font-family: 'Tahoma', 'Arial', sans-serif !important;
+                    line-height: 1.9 !important;
+                    font-size: 16px !important;
                 }
                 [data-testid="stTable"], table {
                     direction: rtl !important;
+                    text-align: right !important;
+                    width: 100%;
                 }
                 th, td {
+                    text-align: right !important;
+                    padding: 10px !important;
+                }
+                ul, ol {
+                    direction: rtl !important;
+                    padding-right: 25px !important;
+                    padding-left: 0 !important;
+                }
+                li {
                     text-align: right !important;
                 }
                 </style>
