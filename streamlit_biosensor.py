@@ -282,10 +282,16 @@ def get_2d_fig(f_array, ref_y, target_y=None, prof=None, selected_sample=None):
     return fig
 
 # --- App Layout ---
-st.markdown("<h1>🏥 ISIA BIOMEDICAL MICROWAVE SENSOR | RF TELEMETRY 📡</h1>", unsafe_allow_html=True)
+st.markdown("<h1>BIOMEDICAL MICROWAVE SENSOR</h1>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<h2>⚙️ HARDWARE CONTROL PANEL</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
+
+# --- QR Code for Live App ---
+st.sidebar.markdown("<p style='text-align: center; color: #7dd3fc; font-family: Courier New, monospace; font-size: 13px; letter-spacing: 1px;'>📱 Scan to Try Live!</p>", unsafe_allow_html=True)
+st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://meta-biosensor.streamlit.app/", width=250)
+st.sidebar.markdown("---")
+
 patient_name = st.sidebar.text_input("PATIENT ID", "PT-1039-X")
 selected_sample = st.sidebar.selectbox("SELECT BIOMATERIAL SAMPLE", list(PROFILES.keys()))
 st.sidebar.markdown("---")
