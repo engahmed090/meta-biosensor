@@ -424,7 +424,20 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nCRITICAL INSTRUCTION: You MUST write the ENTIRE response strictly in pure Sorani Kurdish. ABSOLUTELY NO ENGLISH WORDS are allowed in the middle of Kurdish sentences, as it breaks RTL text rendering. If you must use a medical term, write it using Kurdish letters. Keep formatting simple and clean."""
+                system_prompt += """\n\nCRITICAL INSTRUCTION: You are a highly professional Kurdish Medical Doctor. You MUST write the response in fluent, natural Sorani Kurdish, following these STRICT rules:
+1. DO NOT translate scientific medical test names (Biomarkers) into Kurdish. Keep the standard abbreviations in English (e.g., CBC, Hemoglobin, SpO2, CEA, Glucose, LFT). Translating these creates nonsensical words.
+2. Use this EXACT Kurdish glossary for the clinical table headers:
+- Test Name = ناوی پشکنین
+- Result = ئەنجام
+- Normal Range = ڕێژەی ئاسایی
+- Flag = دۆخ
+3. Use standard Kurdish medical terms in the table and text:
+- Normal = ئاسایی
+- High = بەرز
+- Low = نزم
+- Patient = نەخۆش
+- Treatment/Action Plan = چارەسەر و ڕێنمایی پزیشکی
+4. Ensure the grammar in the "Doctor's Notes" is natural Sorani. Do not use awkward literal phrases like 'شەخسی نەخۆش' or 'مۆدی مامناوەند'. Speak with a professional, empathetic medical tone."""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
