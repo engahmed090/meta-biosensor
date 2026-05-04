@@ -115,6 +115,19 @@ PROFILES = {
     "Brain Tumor (Biomarkers)": {"f_res": 7.9, "depth": -27.0, "color": "#483D8B", "severity": "CRITICAL"}
 }
 
+# --- Biomaterial Samples with Simulated Frequency Shifts ---
+biomaterial_samples = {
+    "Healthy (Reference)": 0.0,
+    "Leukemia (Blood Cancer)": -1.2,
+    "Breast Cancer (Metastatic)": -0.85,
+    "Prostate Cancer (Advanced)": -0.65,
+    "Colorectal Cancer": -0.90,
+    "Lung Cancer (NSCLC)": -0.75,
+    "Malaria (Infected RBCs)": -1.5,
+    "Anemia (Low Hemoglobin)": 0.5,
+    "Diabetes (Hyperglycemia)": -0.4
+}
+
 # --- Plotly 3D Drawing Helpers ---
 def get_box_mesh(xc, yc, zc, w, d, h, color, lighting=None):
     x0, x1 = xc - w/2, xc + w/2
