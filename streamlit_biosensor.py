@@ -455,6 +455,24 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
         <br>
         """, unsafe_allow_html=True)
         
+        # Inject RTL CSS only when Kurdish (Sorani) is selected
+        if report_language == "Kurdish (Sorani)":
+            st.markdown("""
+                <style>
+                [data-testid="stMarkdownContainer"] {
+                    direction: rtl !important;
+                    text-align: right !important;
+                    font-family: 'Arial', sans-serif;
+                }
+                [data-testid="stTable"], table {
+                    direction: rtl !important;
+                }
+                th, td {
+                    text-align: right !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+
         st.markdown(st.session_state.ai_report)
         
     st.markdown("<br><hr style='border-color: #0ea5e9;'><br>", unsafe_allow_html=True)
