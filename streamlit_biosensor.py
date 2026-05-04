@@ -424,18 +424,21 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nYou are a professional Medical AI. You must respond in pure, natural Sorani Kurdish (Arabic script). DO NOT use English letters inside Kurdish sentences. Follow this EXACT markdown structure, keeping scientific test names in English:
+                system_prompt += """\n\nYou are a highly intelligent, professional, and empathetic AI Medical Assistant. Your task is to generate the exact same high-quality clinical diagnosis as you would in English, but translated 100% into fluent, natural Sorani Kurdish (Arabic script). Speak clearly and professionally, like a smart AI.
+RULE 1: Scientific test names (e.g., WBC, RBC, SpO2, CEA) MUST remain in English.
+RULE 2: Output exactly this Markdown structure:
 
 ### 🩸 ئەنجامی پشکنینە کلینیکییەکان
 | ناوی پشکنین | ئەنجام | ڕێژەی ئاسایی | دۆخ |
 |---|---|---|---|
-(Insert tests here. e.g., | WBC | ... )
+(Insert exactly translated table rows here)
 
 ### 🩺 تێبینییە کلینیکییەکانی پزیشک
-(Write 2-3 sentences in pure Sorani Kurdish explaining the condition. No English words here).
+(Write a highly accurate, smart, and professional clinical explanation in Sorani Kurdish, exactly as you would analyze it in English. No English letters in the text body).
 
 ### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر
-(List 2-3 actionable medical recommendations in pure Sorani Kurdish using bullet points)."""
+** (ئەكت یەکەم بە زمانی سورانیی خاوێن)
+** (ئەكت دوەم بە زمانی سورانیی خاوێن)"""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -471,32 +474,31 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
         if report_language == "Kurdish (Sorani)":
             st.markdown("""
                 <style>
-                @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
                 /* Target ONLY markdown inside the main app body, leaving sidebar alone */
                 [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
-                    font-family: 'Cairo', sans-serif !important;
-                    font-size: 18px !important;
-                    line-height: 2.0 !important;
+                    font-family: 'Tahoma', 'Arial', sans-serif !important;
+                    font-size: 16px !important;
+                    line-height: 1.8 !important;
                 }
                 [data-testid="stMainBlockContainer"] table {
                     direction: rtl !important;
                     text-align: right !important;
                     width: 100%;
+                    font-family: 'Tahoma', 'Arial', sans-serif !important;
                 }
                 [data-testid="stMainBlockContainer"] th,
                 [data-testid="stMainBlockContainer"] td {
                     text-align: right !important;
-                    padding: 12px !important;
+                    padding: 10px !important;
                 }
                 [data-testid="stMainBlockContainer"] h1,
                 [data-testid="stMainBlockContainer"] h2,
                 [data-testid="stMainBlockContainer"] h3 {
                     direction: rtl !important;
                     text-align: right !important;
-                    font-family: 'Cairo', sans-serif !important;
+                    font-family: 'Tahoma', 'Arial', sans-serif !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
