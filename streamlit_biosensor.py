@@ -292,6 +292,14 @@ st.sidebar.markdown("<p style='text-align: center; color: #7dd3fc; font-family: 
 st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://meta-biosensor.streamlit.app/", width=250)
 st.sidebar.markdown("---")
 
+# --- Language Selector ---
+report_language = st.sidebar.radio(
+    "🌐 Report Language / زمانی ڕاپۆرت",
+    options=["English", "Kurdish (Sorani)"],
+    horizontal=True
+)
+st.sidebar.markdown("---")
+
 patient_name = st.sidebar.text_input("PATIENT ID", "PT-1039-X")
 selected_sample = st.sidebar.selectbox("SELECT BIOMATERIAL SAMPLE", list(PROFILES.keys()))
 st.sidebar.markdown("---")
@@ -413,6 +421,10 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
 ### 💊 Rx Prescription & Action Plan
 (A beautiful Markdown table or list of specific medications, e.g., Chemotherapy drugs for cancer, Metformin for Diabetes, dosages, and frequency of use, plus immediate clinical actions.)"""
+
+            # Inject Kurdish language instruction if selected
+            if report_language == "Kurdish (Sorani)":
+                system_prompt += """\n\nCRITICAL INSTRUCTION: You MUST write the ENTIRE response, including the Markdown tables, test names, the doctor's clinical notes, and the Rx prescription, strictly in Sorani Kurdish (Kurdish Arabic script). Ensure the medical terminology is accurate and natural in Sorani Kurdish."""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
