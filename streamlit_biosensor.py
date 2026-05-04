@@ -289,7 +289,7 @@ st.sidebar.markdown("---")
 
 # --- QR Code for Live App ---
 st.sidebar.markdown("<p style='text-align: center; color: #7dd3fc; font-family: Courier New, monospace; font-size: 13px; letter-spacing: 1px;'>📱 Scan to Try Live!</p>", unsafe_allow_html=True)
-st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://meta-biosensor.streamlit.app/", width=250)
+st.sidebar.image("https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://meta-biosensor.streamlit.app/", use_container_width=True)
 st.sidebar.markdown("---")
 
 # --- Language Selector ---
@@ -424,16 +424,23 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
 
             # Inject Kurdish language instruction if selected
             if report_language == "Kurdish (Sorani)":
-                system_prompt += """\n\nCRITICAL: You are hallucinating Latin letters inside Kurdish words. You MUST write in clear, simple Sorani Kurdish using ONLY the Kurdish-Arabic alphabet. Do not invent words. You MUST output your response EXACTLY following this structure:
+                system_prompt += """\n\nYou are a medical system. Output strictly in this exact format.
+
+RULE 1: Medical test names (like RBC, WBC, SpO2, CBC, Hemoglobin, Glucose, CEA) MUST remain in English in the table.
+RULE 2: Write the notes and prescription in very simple Sorani Kurdish. NO English letters in the notes!
 
 ### 🩸 ئەنجامی پشکنینە کلینیکییەکان
-(Provide the Markdown table here with headers: ناوی پشکنین | ئەنجام | ڕێژەی ئاسایی | دۆخ)
+
+| ناوی پشکنین (English) | ئەنجام | ڕێژەی ئاسایی | دۆخ |
+|---|---|---|---|
+(Fill rows with realistic values for the selected disease. Keep test names in English.)
 
 ### 🩺 تێبینییە کلینیکییەکانی پزیشک
-(Write exactly 3 clear, simple sentences in Sorani Kurdish explaining the physical diagnosis based on the disease. Do NOT use any English letters here).
+(Write exactly 2 simple sentences in Sorani Kurdish explaining the diagnosis. Do not use complex words.)
 
 ### 💊 ڕەچەتەی دەرمان و پلانی چارەسەر
-(Provide a bulleted list of 3 specific medications or actions in Sorani Kurdish)."""
+- (ئەكت یەکەم بە زمانی کوردیی سادە)
+- (ئەكت دوەم بە زمانی کوردیی سادە)"""
             
             user_prompt = f"Patient Name: {patient_name}\nSelected Condition: {selected_sample}\n\nPlease generate the medical report as instructed."
             
@@ -465,36 +472,26 @@ You MUST structure your response with beautiful Markdown, bold text, and emojis,
         """, unsafe_allow_html=True)
         
         # Inject RTL CSS only when Kurdish (Sorani) is selected
-        # Scoped to .stMain to prevent sidebar layout from breaking
+        # Scoped to stMainBlockContainer to guarantee sidebar is never affected
         if report_language == "Kurdish (Sorani)":
             st.markdown("""
                 <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-                .stMain [data-testid="stMarkdownContainer"] {
+                [data-testid="stMainBlockContainer"] {
                     direction: rtl !important;
                     text-align: right !important;
                     font-family: 'Cairo', sans-serif !important;
-                    font-size: 18px !important;
-                    line-height: 2.0 !important;
                 }
-                .stMain [data-testid="stTable"], .stMain table {
+                [data-testid="stMainBlockContainer"] table {
                     direction: rtl !important;
                     text-align: right !important;
                     width: 100%;
-                    font-family: 'Cairo', sans-serif !important;
                 }
-                .stMain th, .stMain td {
+                [data-testid="stMainBlockContainer"] th,
+                [data-testid="stMainBlockContainer"] td {
                     text-align: right !important;
-                    padding: 12px !important;
-                }
-                .stMain ul, .stMain ol {
-                    direction: rtl !important;
-                    padding-right: 30px !important;
-                }
-                .stMain h1, .stMain h2, .stMain h3, .stMain h4 {
-                    font-family: 'Cairo', sans-serif !important;
-                    text-align: right !important;
+                    padding: 10px !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
